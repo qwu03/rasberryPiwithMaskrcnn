@@ -1,22 +1,20 @@
 #!/usr/bin/python
 # coding=utf8
-# 要 /usr/bin/python 这个目录下 python 来执行你的脚本
 # encoding: utf-8
 import _thread
 import time
-import sqlite3 as sql    # 给予sqlite3一个别名sql
+import sqlite3 as sql   
 import pigpio
-from LeServo import PWM_Servo   # 调用LeServo中的PWM_Servo
+from LeServo import PWM_Servo   
 import os
 
-Servos = ()     # 创建一个空元组，创建时可不指定元素的个数，相当于不定长的数组，但一旦创建就不能修改元组的长度。
-runningAction = False   # 初始化运动标识
+Servos = ()     
+runningAction = False   
 pi = None 
-stopRunning = False     # 初始化停止标识
+stopRunning = False     
 
 
-# ####判断+赋值
-def setServo(servoId, pos, time):     # 舵机转动函数
+def setServo(servoId, pos, time):     
     global runningAction
     if servoId < 1 or servoId > 6:
         return
@@ -32,13 +30,12 @@ def setServo(servoId, pos, time):     # 舵机转动函数
         time = 20
     else:
         pass
-    if runningAction is False:  # 如果没有动作组在运行
+    if runningAction is False:  
         Servos[servoId - 1].setPosition(pos, time)
-        # -1是因为数组是从0开始的，在Python的解释器内部，当我们调用Servos[servoId - 1].setPosition(pos, time)时,
-        # 实际上Python解释成PWM_Servo.setPosition(Servos[servoId - 1], pos, time)，也就是说把self替换成类的实例。
 
 
-# #####获取当前舵机位置
+
+
 def setServo_CMP(servoId, pos, time):
     # print(servoId, pos, time)
     if servoId < 1 or servoId > 6:
@@ -47,7 +44,7 @@ def setServo_CMP(servoId, pos, time):
     setServo(servoId, Servos[servoId - 1].getPosition() + pos, time);
 
 
-# ######偏差加载
+
 def setDeviation(servoId, d):
     global runningAction
     if servoId < 1 or servoId > 6:
@@ -55,10 +52,10 @@ def setDeviation(servoId, d):
     if d < -300 or d > 300:
         return
     if runningAction is False:
-        Servos[servoId -1].setDeviation(d)  # 偏差载入
+        Servos[servoId -1].setDeviation(d)  
 
 
-def stopActionGroup():   # 动作组停止运行
+def stopActionGroup():  
     global stopRunning
     stopRunning = True
 
@@ -68,25 +65,25 @@ def runActionGroup(actNum, times):
     global stopRunning
     actNum = "./ActionGroups/" + actNum + ".d6a"
     # print(actNum)
-    if os.path.exists(actNum) is True:  # 如果存在该动作组
-        ag = sql.connect(actNum)    # 打开数据库actNum
-        cu = ag.cursor()    # 定义了一个游标
-        cu.execute("select * from ActionGroup")     # 查询
-        if runningAction is False:  # 没有动作组在运行
-            runningAction = True    # 运行该动作组
+    if os.path.exists(actNum) is True:  
+        ag = sql.connect(actNum)    
+        cu = ag.cursor()   
+        cu.execute("select * from ActionGroup")   
+        if runningAction is False:  
+            runningAction = True   
             while True:
-                if stopRunning is True:     #
+                if stopRunning is True:    
                     stopRunning = False
                     runningAction = False
-                    cu.close()  # 关闭一个数据库链接
-                    ag.close()  # 游标关闭
+                    cu.close() 
+                    ag.close()  
                     break
-                act = cu.fetchone()     # 返回列表中的第一项，再次使用,则返回第二项,依次下去
+                act = cu.fetchone()    
                 if act is not None:
                     # print(act)
                     for i in range(0, 6, 1):
                         Servos[i].setPosition(act[2+i], act[1]) 
-                    time.sleep(float(act[1])/1000.0)    # 运行时间
+                    time.sleep(float(act[1])/1000.0)   
                 else:
                     runningAction = False
                     cu.close()
@@ -94,14 +91,14 @@ def runActionGroup(actNum, times):
                     break
     else:
         runningAction = False
-        print("未能找到动作组文件")
+        print("not find")
 
 
 def initLeArm(d):
     global Servos
     global pi 
-    pi = pigpio.pi()    # 实例化
-    servo1 = PWM_Servo(pi, 12,  deviation=d[0], control_speed = True) #初始化各舵机
+    pi = pigpio.pi()    
+    servo1 = PWM_Servo(pi, 12,  deviation=d[0], control_speed = True)
     servo2 = PWM_Servo(pi, 16, deviation=d[1], control_speed = True)
     servo3 = PWM_Servo(pi, 20, deviation=d[2], control_speed = True)
     servo4 = PWM_Servo(pi, 21, deviation=d[3], control_speed = True)
@@ -109,12 +106,12 @@ def initLeArm(d):
     servo6 = PWM_Servo(pi, 13, deviation=d[5], control_speed = True)
     Servos = (servo1, servo2, servo3, servo4, servo5, servo6)
     for i in range(0, 6, 1):
-        Servos[i].setPosition(1500, 1000)  # 1-6号舵机转到中位
+        Servos[i].setPosition(1500, 1000) 
 
 
 def stopLeArm():
-    print("停止机械臂")
-    pi.stop()   # 断开pwm连接
+    print("stop")
+    pi.stop()  
 
 
 
