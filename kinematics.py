@@ -1,5 +1,4 @@
 # coding=utf8
-# 机械臂运动学：给定相应的坐标（X,Y,Z），机械臂运行到相应的位置
 #
 from math import *
 import LeArm
@@ -11,7 +10,7 @@ import LeConf
 d = []
 for i in range(0, len(LeConf.Deviation), 1):
     if LeConf.Deviation[i] > 1600 or LeConf.Deviation < 1400:
-        print("偏差值超出范围1200-1800")
+        print("1200-1800")
     else:
         d.append(LeConf.Deviation[i] - 1500)
 
@@ -23,17 +22,14 @@ lastX = 0
 lastY = 0
 lastZ = 4000
 
-l0 = 960    # 底盘到第二个舵机中心轴的距离9.6cm
-l1 = 1050   # 第二个舵机到第三 个舵机的距离10.5cm
-l2 = 880    # 第三个舵机到第四 个舵机的距离8.8cm
-l3 = 1650   # 第四个舵机到机械臂(张开后)最高点的距离16.5cm
+l0 = 960    
+l1 = 1050   
+l2 = 880    
+l3 = 1650   
 
 
-alpha = 0   # 第四个舵机的仰角
-# theta3 = 0  # ID3舵机角度值
-# theta4 = 0  # ID4舵机角度值
-# theta5 = 0  # ID5舵机角度值
-# theta6 = 0  # ID6舵机角度值
+alpha = 0  
+
 
 
 def kinematic_analysis(x, y, z, Alpha):
@@ -54,11 +50,11 @@ def kinematic_analysis(x, y, z, Alpha):
         theta6 = theta6 * 180.0 / pi
         # print '-123', theta6
     # print('theta6:', theta6)
-    y = sqrt(x*x + y*y)     # x,y坐标的斜边
+    y = sqrt(x*x + y*y)    
     # print('y1 + y2 + y3 = ', y)
-    y = y-l3 * cos(Alpha*pi/180.0)    # 求出 y总 - y3 = y2 + y1
+    y = y-l3 * cos(Alpha*pi/180.0)   
     # print('y1 + y2 = ', y)
-    z = z-l0-l3*sin(Alpha*pi/180.0)   # 求出z1 + z2
+    z = z-l0-l3*sin(Alpha*pi/180.0)   
     # print z
     if z < -l0:
         return False
@@ -69,8 +65,8 @@ def kinematic_analysis(x, y, z, Alpha):
     aaa = -(y*y+z*z-l1*l1-l2*l2)/(2*l1*l2)
     if aaa > 1 or aaa < -1:
         return False
-    theta4 = acos(aaa)  # 算出弧度
-    theta4 = 180.0 - theta4 * 180.0 / pi    # 转化角度
+    theta4 = acos(aaa)  
+    theta4 = 180.0 - theta4 * 180.0 / pi  
     # print('theta4:', theta4)
     if theta4 > 135.0 or theta4 < -135.0:
         return False
@@ -92,10 +88,10 @@ def kinematic_analysis(x, y, z, Alpha):
     # print('theta3:', theta3)
     if theta3 > 90.0 or theta3 < -90.0:
         return False
-    return theta3, theta4, theta5, theta6     # 运行成功返回数据
+    return theta3, theta4, theta5, theta6    
 
 
-# 计算平均数
+
 def averagenum(num):
     nsum = 0
     for i in range(len(num)):
@@ -137,38 +133,7 @@ def plt_image(x_list, y_list):
 
     plt.xlabel('x-value')
     plt.ylabel('y-label')
-    # plt.scatter(x, y, s, c, marker)
-    # x: x轴坐标
-    # y：y轴坐标
-    # s：点的大小/粗细 标量或array_like 默认是 rcParams['lines.markersize'] ** 2
-    # c: 点的颜色
-    # marker: 标记的样式 默认是 'o'
+
     plt.legend()
 
     plt.scatter(x_list, y_list, s=10, c="#ff1212", marker='o')
-
-
-# if __name__ == '__main__':
-#     try:
-#         # 画出机械臂可以到达的点
-#         for y in range(1250, 3250, 50):
-#             for x in range(1500, -1500, -50):
-#                 ok = kinematic_analysis(x, y, 200, 0, 50)
-#                 if ok:
-#                     print(x, y)
-#                     plt_image(x, y)
-#                 else:
-#                     for a in range(0, -60, -1):
-#                         ok = kinematic_analysis(x, y, 200, a, 50)
-#                         if ok:
-#                             print('a', (x, y))
-#                             plt_image(x, y)
-#                             # xx_list.append(x)
-#                             # yy_list.append(y)
-#                             print('a', a)
-#                             break
-#                 # time.sleep(0.1)
-#         plt.show()
-#         # plt_image(xx_list, yy_list)
-#     except Exception as e:
-#         print(e)
