@@ -1,14 +1,3 @@
-"""
-Mask R-CNN
-Train on the own dataset. 
-
-Based on their work:
-
-Copyright (c) 2018 Matterport, Inc.
-Licensed under the MIT License (see LICENSE for details)
-Written by Waleed Abdulla
-"""
-
 import os
 import sys
 import json
